@@ -66,10 +66,8 @@ Code anhand der original Datenblätter neu programmiert von Lutz Elßner im Juli
     export function getString(pRegister: eRegister) {
         if (pRegister == eRegister.Wochentag) {
             return arrayWeekday.get(getByte(pRegister, eFormat.einer))
-            //return arrayWeekday.get(einer(getRegister(pRegister)))
         } else {
             return getByte(pRegister, eFormat.zehner).toString() + getByte(pRegister, eFormat.einer).toString()
-            //return zehner(getRegister(pRegister)).toString() + einer(getRegister(pRegister)).toString()
         }
     }
 
@@ -147,8 +145,6 @@ Code anhand der original Datenblätter neu programmiert von Lutz Elßner im Juli
         let b = pins.createBuffer(1)
         b.setUint8(0, pControlRegister)
         pins.i2cWriteBuffer(pADDR, b, true)
-        //write1Byte(pADDR, pControlRegister, true)
-        //return i2c.readArray(pADDR, 1).get(0)
         return pins.i2cReadBuffer(pADDR, 1).getUint8(0)
     }
 
@@ -157,12 +153,11 @@ Code anhand der original Datenblätter neu programmiert von Lutz Elßner im Juli
     //% group="i2c Uhr stellen" advanced=true
     //% block="i2c %pADDR Control Register 1 und 2 initialisieren" weight=38
     export function initRegister(pADDR: eADDR) {
-        // i2c.writeArray(i2cADDR, false, [0, 0, 6, 0, 0x20]) // 1.Register-Nummer, dann 4 Byte Daten
-        // i2c.writeArray(pADDR, false, [0, 0, 6]) // 1.Register-Nummer, dann 2 Byte Daten
+        // i2c.writeArray(pADDR, false, [0, 0, 0x26]) // 1.Register-Nummer, dann 2 Byte Daten
         let b = pins.createBuffer(3)
         b.setUint8(0, eControl.Control_1) // 1.Register-Nummer 0, dann 2 Byte Daten
         b.setUint8(1, 0)
-        b.setUint8(2, 6)
+        b.setUint8(2, 0x26) // minute interrupt, CLK 1 Hz
         pins.i2cWriteBuffer(pADDR, b)
     }
 
@@ -171,15 +166,10 @@ Code anhand der original Datenblätter neu programmiert von Lutz Elßner im Juli
     export function writeDateTime(i2cADDR: eADDR, pZeitRegister: eRegister, values: number[]) {
         let b = pins.createBuffer(values.length + 1)
         b.setUint8(0, pZeitRegister + 4) // Register Address 4:Seconds 5:Minutes ... 10:Years
-        //i2c.bufferCreate(values.length + 1)
-        //i2c.bufferSet(0, pRegister + 4) // Register Address 4:Seconds 5:Minutes ... 10:Years
         for (let index = 0; index <= values.length; index++) {
             b.setUint8(index + 1, convertByte(values.get(index), eFormat.BCD))
-            //b.setUint8(index + 1, DECtoBCD(values.get(index)))
-            //i2c.bufferSet(index + 1, DECtoBCD(values.get(index)))
         }
         pins.i2cWriteBuffer(i2cADDR, b)
-        //i2c.writeBuffer(i2cADDR)
     }
 
     //% group="i2c Uhr stellen" advanced=true
@@ -187,7 +177,6 @@ Code anhand der original Datenblätter neu programmiert von Lutz Elßner im Juli
     export function addDateTime(pADDR: eADDR, pZeitRegister: eRegister, pByte: number) {
         if (between(pZeitRegister, 0, 6)) {
             let r = convertByte(getDateTimeArray().get(pZeitRegister), eFormat.DEC) + pByte
-            //let r = BCDtoDEC(getDateTimeArray().get(pRegister)) + value
             if (
                 (pZeitRegister == eRegister.Sekunde && between(r, 0, 59))
                 || (pZeitRegister == eRegister.Minute && between(r, 0, 59))
@@ -201,9 +190,6 @@ Code anhand der original Datenblätter neu programmiert von Lutz Elßner im Juli
                 b.setUint8(0, pZeitRegister + 4)
                 b.setUint8(1, convertByte(r, eFormat.BCD))
                 pins.i2cWriteBuffer(pADDR, b)
-
-                // i2c.write2Byte(pADDR, pZeitRegister + 4, convertByte(r, eFormat.BCD))
-
             }
         }
     }
