@@ -1,15 +1,17 @@
 
 //% color=#007FBF icon="\uf017" block="RTC Uhr" weight=12
 namespace rtcpcf85063tp
-/* 230804 PCF85063TP
+/* 230806
 Calliope i2c Erweiterung für Grove - High Precision RTC (Real Time Clock)
 optimiert und getestet für die gleichzeitige Nutzung mehrerer i2c Module am Calliope
+[Projekt-URL] https://github.com/calliope-net/rtc-pcf85063tp
+[README]      https://calliope-net.github.io/rtc-pcf85063tp
 
 CMOS Real-Time Clock (RTC) - Quarz-Uhr mit Knopfzelle CR1225 3Volt
-https://wiki.seeedstudio.com/Grove_High_Precision_RTC/
-https://github.com/Seeed-Studio/Grove_High_Precision_RTC_PCF85063TP
-https://codeload.github.com/Seeed-Studio/Grove_High_Precision_RTC_PCF85063TP/zip/refs/heads/master
-https://files.seeedstudio.com/wiki/Grove-High_Precision_RTC/res/PCF85063TP.pdf
+[Hardware] https://wiki.seeedstudio.com/Grove_High_Precision_RTC/
+[Software] https://github.com/Seeed-Studio/Grove_High_Precision_RTC_PCF85063TP
+           https://codeload.github.com/Seeed-Studio/Grove_High_Precision_RTC_PCF85063TP/zip/refs/heads/master
+           https://files.seeedstudio.com/wiki/Grove-High_Precision_RTC/res/PCF85063TP.pdf
 
 Code anhand der original Datenblätter neu programmiert von Lutz Elßner im Juli 2023
 */ {
