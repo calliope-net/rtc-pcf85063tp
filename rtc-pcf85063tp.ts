@@ -174,7 +174,7 @@ Code anhand der original Datenblätter neu programmiert von Lutz Elßner im Juli
 
     //% group="i2c Uhr stellen" advanced=true
     //% block="i2c %i2cADDR ändere Register(0-6) %pRegister um %value" weight=34
-    export function addDateTime(pADDR: eADDR, pZeitRegister: eRegister, pByte: number) {
+    export function addDateTime(pADDR: eADDR, pZeitRegister: number, pByte: number) {
         if (between(pZeitRegister, 0, 6)) {
             let r = convertByte(getDateTimeArray().get(pZeitRegister), eFormat.DEC) + pByte
             if (
