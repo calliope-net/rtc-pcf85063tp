@@ -1,5 +1,5 @@
 
-//% color=#007FBF icon="\uf017" block="RTC Uhr" weight=12
+//% color=#007FBF icon="\uf017" block="RTC Uhr" weight=22
 namespace rtcpcf85063tp
 /* 230806
 Calliope i2c Erweiterung für Grove - High Precision RTC (Real Time Clock)
