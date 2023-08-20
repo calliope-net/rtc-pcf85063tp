@@ -1,33 +1,45 @@
 
-> Diese Seite bei [https://calliope-net.github.io/rtc-pcf85063tp/](https://calliope-net.github.io/rtc-pcf85063tp/) öffnen
+Diese Seite bei [https://calliope-net.github.io/rtc-pcf85063tp/](https://calliope-net.github.io/rtc-pcf85063tp/) öffnen.
 
-## Als Erweiterung verwenden
+### Calliope Erweiterung für das i2c Modul:
+
+* [Grove - High Precision RTC (Real Time Clock)](https://wiki.seeedstudio.com/Grove_High_Precision_RTC/)
 
 Dieses Repository kann als **Erweiterung** in MakeCode hinzugefügt werden.
 
 * öffne [makecode.calliope.cc](https://makecode.calliope.cc)
-* klicke auf die Projektvorlage **Calliope mini 2.x**
-* klicke auf **Erweiterungen** unter dem Zahnrad-Menü (oder bei den Blöcken ganz unten)
-* kopiere die folgende **Projekt-URL** in die Zwischenablage
-* **https://github.com/calliope-net/rtc-pcf85063tp**
-  * (dreimal klicken, um die ganze Zeile zu markieren, Strg-C)
+* klicke auf eine Projektvorlage
+* klicke unter dem Zahnrad-Menü auf **Erweiterungen** (oder bei den Blöcken ganz unten)
+* kopiere die folgende **Projekt-URL** in die Zwischenablage (Strg-C)
+* **calliope-net/rtc-pcf85063tp**
 * füge sie auf der Webseite oben ein (Strg-V) und klicke auf die Lupe (oder ENTER)
 
 ![](erweiterung-laden.png)
 
-* zuletzt noch auf das Rechteck klicken - jetzt ist ein neuer Block dazu gekommen
+* zuletzt noch auf das Rechteck klicken - jetzt hat die Liste einen neuen Eintrag bekommen
 
 ![](blocks.png)
 
-### Programmier-Beispiele, andere i2c-Module, Bilder, Bezugsquellen:
-* [Calliope i2c Beispiel-Projekt mit mehreren i2c Modulen gleichzeitig](https://calliope-net.github.io/i2c-test/)
+### Beschreibung der Erweiterung 'rtc-pcf85063tp'
 
-### Updates
+*
 
-> Um ein Update der Erweiterung von GitHub zu laden, klicke in der JavaScript Ansicht
-> links unter dem Simulator auf den schwarzen Explorer. Dort steht der Name der Erweiterung
-> vor einem Mülleimer- und einem Pfeil-Symbol. Mit dem Mülleimer wird die Erweiterung gelöscht,
-> mit dem runden Pfeil nach einem Update gesucht. Danach steht dort eine Versionsnummer.
+
+### Erweiterungen
+
+> [Upates für Erweiterungen; Erweiterungen aus einem Projekt löschen.](https://calliope-net.github.io/i2c-test#updates)
+
+> [Alle i2c-Erweiterungen für MakeCode von calliope-net (Software).](https://calliope-net.github.io/i2c-test#erweiterungen)
+
+#### Calliope-Apps, .hex-Dateien, Bildschirmfotos mit Blöcken
+
+> [Alle Beispiel-Projekte für MakeCode von calliope-net (Calliope-Apps).](https://calliope-net.github.io/i2c-test#programmierbeispiele)
+
+> GitHub-Profil calliope-net: [https://github.com/calliope-net](https://github.com/calliope-net)
+
+### Bezugsquellen
+
+> [Alle i2c-Module und Bezugsquellen (Hardware).](https://calliope-net.github.io/i2c-test#bezugsquellen)
 
 #### Metadaten (verwendet für Suche, Rendering)
 
