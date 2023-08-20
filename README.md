@@ -20,7 +20,7 @@ Dieses Repository kann als **Erweiterung** in MakeCode hinzugefügt werden.
 
 ![](blocks.png)
 
-### Beschreibung der Erweiterung 'rtc-pcf85063tp'
+### Beschreibung der Erweiterung für 'Grove - High Precision RTC (Real Time Clock)'
 
 *
 
