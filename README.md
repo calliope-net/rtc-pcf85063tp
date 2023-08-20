@@ -16,7 +16,8 @@ Dieses Repository kann als **Erweiterung** in MakeCode hinzugefügt werden.
 
 ![](erweiterung-laden.png)
 
-* zuletzt noch auf das Rechteck klicken - jetzt hat die Liste einen neuen Eintrag bekommen
+* wenn die Erweiterung gefunden wurde, klicke auf das Rechteck
+* jetzt hat die Liste den neuen Eintrag **RTC Uhr** bekommen
 
 ![](blocks.png)
 
