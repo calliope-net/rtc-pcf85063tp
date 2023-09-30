@@ -1,5 +1,5 @@
 
-Diese Seite bei [https://calliope-net.github.io/rtc-pcf85063tp/](https://calliope-net.github.io/rtc-pcf85063tp/) öffnen.
+Diese Seite bei [https://calliope-net.github.io/rtc-uhr/](https://calliope-net.github.io/rtc-uhr/) öffnen.
 
 ### Calliope Erweiterung für das i2c Modul:
 
@@ -13,7 +13,7 @@ Dieses Repository kann als **Erweiterung** in MakeCode hinzugefügt werden.
 * klicke auf eine Projektvorlage
 * klicke unter dem Zahnrad-Menü auf **Erweiterungen** (oder bei den Blöcken ganz unten)
 * kopiere die folgende **Projekt-URL** in die Zwischenablage (Strg-C)
-* **calliope-net/rtc-pcf85063tp**
+* **calliope-net/rtc-uhr**
 * füge sie auf der Webseite oben ein (Strg-V) und klicke auf die Lupe (oder ENTER)
 
 ![](erweiterung-laden.png)
