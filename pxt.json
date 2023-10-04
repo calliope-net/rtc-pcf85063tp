@@ -9,7 +9,8 @@
         "README.md",
         "main.blocks",
         "main.ts",
-        "rtc-pcf85063tp.ts"
+        "rtc-pcf85063tp.ts",
+        "rtcpcf85063tp.ts"
     ],
     "testFiles": [
         "test.ts"
