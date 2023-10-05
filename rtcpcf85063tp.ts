@@ -31,20 +31,29 @@ Code anhand der original Datenblätter neu programmiert von Lutz Elßner im Juli
     //% block="i2c %pADDR lese Datum/Zeit in internes Array"
     //% pADDR.shadow="rtcpcf85063tp_eADDR"
     export function readDateTime(pADDR: number) {
-        write1Byte(pADDR, 4, true)
-        let b = pins.i2cReadBuffer(pADDR, 7)
-        for (let index = 0; index <= b.length - 1; index++) {
-            rtcpcf85063tp_Changes.set(index, (rtcpcf85063tp_Buffer.getUint8(index) != b.getUint8(index)))
-        }
-        rtcpcf85063tp_Buffer = b
-    }
+        //write1Byte(pADDR, 4, true)
 
-    function write1Byte(pADDR: number, byte0: number, repeat: boolean) {
         let b = Buffer.create(1)
-        b.setUint8(0, byte0)
-        rtcpcf85063tp_i2cWriteBufferError = pins.i2cWriteBuffer(pADDR, b, repeat)
-    }
+        b.setUint8(0, 4)
+        rtcpcf85063tp_i2cWriteBufferError = pins.i2cWriteBuffer(pADDR, b, true)
 
+        if (rtcpcf85063tp_i2cWriteBufferError != 0) {
+            basic.showNumber(pADDR) // wenn Modul nicht angesteckt: i2c Adresse anzeigen und Abbruch
+        } else {
+            b = pins.i2cReadBuffer(pADDR, 7)
+            for (let i = 0; i <= b.length - 1; i++) {
+                rtcpcf85063tp_Changes.set(i, (rtcpcf85063tp_Buffer.getUint8(i) != b.getUint8(i)))
+            }
+            rtcpcf85063tp_Buffer = b
+        }
+    }
+    /* 
+        function write1Byte(pADDR: number, byte0: number, repeat: boolean) {
+            let b = Buffer.create(1)
+            b.setUint8(0, byte0)
+            rtcpcf85063tp_i2cWriteBufferError = pins.i2cWriteBuffer(pADDR, b, repeat)
+        }
+    */
 
     // ========== group="Zahl (Byte)"
 
