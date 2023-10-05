@@ -49,8 +49,10 @@ Code anhand der original Datenblätter neu programmiert von Lutz Elßner im Juli
     // ========== group="Zahl (Byte)"
 
     //% group="Zahl (Byte)"
-    //% block="%pRegister als Zahl im Format %pFormat aus Array"
-    export function getByte(pRegister: eRegister, pFormat: eFormat) {
+    //% block="%pRegister als Zahl im Format %pFormat aus Array" weight=6
+    //% pRegister.min=0 pRegister.max=6
+    //% pRegister.shadow="rtcpcf85063tp_eRegister"
+    export function getByte(pRegister: number, pFormat: eFormat) {
         let r = rtcpcf85063tp_Buffer.getUint8(pRegister)
         if (pRegister == eRegister.Sekunde && getOscillatorStop) { r = r & 0x7F }
         //if (pFormat == eFormat.DEC) { return BCDtoDEC(r) }
@@ -60,11 +62,23 @@ Code anhand der original Datenblätter neu programmiert von Lutz Elßner im Juli
         else { return r }
     }
 
+
+    // ========== group="i2c Zeit Register (aus Array)"
+
+    //% group="Zahl (Byte)"
+    //% block="gesamtes Array (7 Byte) [s,m,H,d,w,M,y] im Format BCD" weight=4
+    export function getDateTimeArray() {
+        return rtcpcf85063tp_Buffer.toArray(NumberFormat.UInt8LE)
+    }
+
+
     // ========== group="Text (String)"
 
     //% group="Text (String)"
     //% block="%pRegister als Text aus Array" weight=6
-    export function getString(pRegister: eRegister) {
+    //% pRegister.min=0 pRegister.max=6
+    //% pRegister.shadow="rtcpcf85063tp_eRegister"
+    export function getString(pRegister: number) {
         if (pRegister == eRegister.Wochentag) {
             return ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'].get(getByte(pRegister, eFormat.einer))
         } else {
@@ -103,73 +117,16 @@ Code anhand der original Datenblätter neu programmiert von Lutz Elßner im Juli
     }
 
 
-    // ========== group="Boolean" advanced=true
+    // ========== subcategory="Uhr stellen"
 
-    //% group="Boolean" advanced=true
-    //% block="OscillatorStop / Batterie wechseln" weight=8
-    export function getOscillatorStop(): boolean {
-        return (rtcpcf85063tp_Buffer.getUint8(eRegister.Sekunde) & 0x80) != 0
-    }
+    // ========== group="i2c Uhr stellen"
 
-    //% group="Boolean" advanced=true
-    //% block="%pRegister wurde im Array aktualisiert" weight=6
-    export function isChanged(pRegister: eRegister) {
-        return rtcpcf85063tp_Changes.get(pRegister)
-    }
-
-
-    // ========== group="i2c Zeit Register (aus Array)" advanced=true
-
-    //% group="i2c Zeit Register (aus Array)" advanced=true
-    //% block="gesamtes Array (7 Byte) [s,m,H,d,w,M,y] im Format BCD"
-    export function getDateTimeArray() {
-        return rtcpcf85063tp_Buffer.toArray(NumberFormat.UInt8LE)
-    }
-
-
-    // ========== group="i2c Control Register" advanced=true
-
-    //% group="i2c Control Register" advanced=true
-    //% block="i2c %pADDR writeRegister %pControlRegister %pByte" weight=8
-    //% pADDR.shadow="rtcpcf85063tp_eADDR"
-    //% value.min=0 value.max=255
-    export function writeRegister(pADDR: number, pControlRegister: eControl, pByte: number) {
-        let b = Buffer.create(2)
-        b.setUint8(0, pControlRegister)
-        b.setUint8(1, pByte)
-        rtcpcf85063tp_i2cWriteBufferError = pins.i2cWriteBuffer(pADDR, b)
-        //i2c.write2Byte(pADDR, pRegister, value)
-    }
-
-    //% group="i2c Control Register" advanced=true
-    //% block="i2c %pADDR readRegister %pControlRegister" weight=6
-    //% pADDR.shadow="rtcpcf85063tp_eADDR"
-    export function readRegister(pADDR: number, pControlRegister: eControl) {
-        let b = Buffer.create(1)
-        b.setUint8(0, pControlRegister)
-        rtcpcf85063tp_i2cWriteBufferError = pins.i2cWriteBuffer(pADDR, b, true)
-        return pins.i2cReadBuffer(pADDR, 1).getUint8(0)
-    }
-
-
-    // ========== group="i2c Uhr stellen" advanced=true
-
-    //% group="i2c Uhr stellen" advanced=true
-    //% block="i2c %pADDR Control Register 1 und 2 initialisieren" weight=8
-    //% pADDR.shadow="rtcpcf85063tp_eADDR"
-    export function initRegister(pADDR: number) {
-        // i2c.writeArray(pADDR, false, [0, 0, 0x26]) // 1.Register-Nummer, dann 2 Byte Daten
-        let b = Buffer.create(3)
-        b.setUint8(0, eControl.Control_1) // 1.Register-Nummer 0, dann 2 Byte Daten
-        b.setUint8(1, 0)
-        b.setUint8(2, 0x26) // minute interrupt, CLK 1 Hz
-        rtcpcf85063tp_i2cWriteBufferError = pins.i2cWriteBuffer(pADDR, b)
-    }
-
-    //% group="i2c Uhr stellen" advanced=true
+    //% group="i2c Uhr stellen" subcategory="Uhr stellen"
     //% block="i2c %pADDR setze %pZeitRegister (und folgende) auf %values" weight=6
     //% pADDR.shadow="rtcpcf85063tp_eADDR"
-    export function writeDateTime(pADDR: number, pZeitRegister: eRegister, values: number[]) {
+    //% pZeitRegister.min=0 pZeitRegister.max=6
+    //% pZeitRegister.shadow="rtcpcf85063tp_eRegister"
+    export function writeDateTime(pADDR: number, pZeitRegister: number, values: number[]) {
         let b = Buffer.create(values.length + 1)
         b.setUint8(0, pZeitRegister + 4) // Register Address 4:Seconds 5:Minutes ... 10:Years
         for (let index = 0; index <= values.length; index++) {
@@ -178,12 +135,15 @@ Code anhand der original Datenblätter neu programmiert von Lutz Elßner im Juli
         rtcpcf85063tp_i2cWriteBufferError = pins.i2cWriteBuffer(pADDR, b)
     }
 
-    //% group="i2c Uhr stellen" advanced=true
-    //% block="i2c %pADDR ändere Register(0-6) %pZeitRegister um %pByte" weight=4
+    //% group="i2c Uhr stellen" subcategory="Uhr stellen"
+    //% block="i2c %pADDR ändere %pZeitRegister um %byte" weight=4
     //% pADDR.shadow="rtcpcf85063tp_eADDR"
-    export function addDateTime(pADDR: number, pZeitRegister: number, pByte: number) {
+    //% pZeitRegister.min=0 pZeitRegister.max=6
+    //% pZeitRegister.shadow="rtcpcf85063tp_eRegister"
+    //% byte.min=-1 byte.max=1 byte.defl=-1
+    export function addDateTime(pADDR: number, pZeitRegister: number, byte: number) {
         if (between(pZeitRegister, 0, 6)) {
-            let r = convertByte(getDateTimeArray().get(pZeitRegister), eFormat.DEC) + pByte
+            let r = convertByte(getDateTimeArray().get(pZeitRegister), eFormat.DEC) + byte
             if (
                 (pZeitRegister == eRegister.Sekunde && between(r, 0, 59))
                 || (pZeitRegister == eRegister.Minute && between(r, 0, 59))
@@ -201,21 +161,90 @@ Code anhand der original Datenblätter neu programmiert von Lutz Elßner im Juli
         }
     }
 
-    function between(i0: number, i1: number, i2: number): boolean { return (i0 >= i1 && i0 <= i2) }
+    //% blockId=rtcpcf85063tp_eRegister
+    //% group="i2c Uhr stellen" subcategory="Uhr stellen"
+    //% block="%pRegister" weight=2
+    export function rtcpcf85063tp_eRegister(pRegister: eRegister): number { return pRegister }
+
+
+
+    // ========== group="i2c Control Register" subcategory="Uhr stellen"
+
+    //% group="i2c Control Register" subcategory="Uhr stellen"
+    //% block="i2c %pADDR Control Register 1 und 2 initialisieren" weight=8
+    //% pADDR.shadow="rtcpcf85063tp_eADDR"
+    export function initRegister(pADDR: number) {
+        // i2c.writeArray(pADDR, false, [0, 0, 0x26]) // 1.Register-Nummer, dann 2 Byte Daten
+        let b = Buffer.create(3)
+        b.setUint8(0, eControl.Control_1) // 1.Register-Nummer 0, dann 2 Byte Daten
+        b.setUint8(1, 0)
+        b.setUint8(2, 0x26) // minute interrupt, CLK 1 Hz
+        rtcpcf85063tp_i2cWriteBufferError = pins.i2cWriteBuffer(pADDR, b)
+    }
+
+    //% group="i2c Control Register" subcategory="Uhr stellen"
+    //% block="i2c %pADDR writeRegister %pControlRegister %byte" weight=7
+    //% pADDR.shadow="rtcpcf85063tp_eADDR"
+    //% byte.min=0 byte.max=255
+    export function writeRegister(pADDR: number, pControlRegister: eControl, byte: number) {
+        let b = Buffer.create(2)
+        b.setUint8(0, pControlRegister)
+        b.setUint8(1, byte)
+        rtcpcf85063tp_i2cWriteBufferError = pins.i2cWriteBuffer(pADDR, b)
+        //i2c.write2Byte(pADDR, pRegister, value)
+    }
+
+    //% group="i2c Control Register" subcategory="Uhr stellen"
+    //% block="i2c %pADDR readRegister %pControlRegister" weight=6
+    //% pADDR.shadow="rtcpcf85063tp_eADDR"
+    export function readRegister(pADDR: number, pControlRegister: eControl) {
+        let b = Buffer.create(1)
+        b.setUint8(0, pControlRegister)
+        rtcpcf85063tp_i2cWriteBufferError = pins.i2cWriteBuffer(pADDR, b, true)
+        return pins.i2cReadBuffer(pADDR, 1).getUint8(0)
+    }
+
+
+
+
+
+    // ========== advanced=true
+
+    // ========== group="Boolean" advanced=true
+
+    //% group="Boolean" advanced=true
+    //% block="OscillatorStop / Batterie wechseln" weight=8
+    export function getOscillatorStop(): boolean {
+        return (rtcpcf85063tp_Buffer.getUint8(eRegister.Sekunde) & 0x80) != 0
+    }
+
+    //% group="Boolean" advanced=true
+    //% block="%pRegister wurde im Array aktualisiert" weight=6
+    //% pRegister.shadow="rtcpcf85063tp_eRegister"
+    export function isChanged(pRegister: number) {
+        return rtcpcf85063tp_Changes.get(pRegister)
+    }
+
+    //% group="Boolean" advanced=true
+    //% block="%i0 zwischen %i1 und %i2" weight=2
+    export function between(i0: number, i1: number, i2: number): boolean { return (i0 >= i1 && i0 <= i2) }
+
 
 
     // ========== group="Mathematik" advanced=true
 
     //% group="Mathematik" advanced=true
-    //% block="convertByte %pByte %pFormat" weight=2
-    export function convertByte(pByte: number, pFormat: eFormat) {
-        let iByte = pByte & 0xFF
+    //% block="convertByte %byte %pFormat"
+    //% byte.min=0 byte.max=255
+    export function convertByte(byte: number, pFormat: eFormat) {
+        let iByte = byte & 0xFF
         if (pFormat == eFormat.DEC) { iByte = (iByte >> 4) * 10 + iByte % 16 }
         else if (pFormat == eFormat.zehner) { iByte = iByte >> 4 }
         else if (pFormat == eFormat.einer) { iByte = iByte % 16 }
         else if (pFormat == eFormat.BCD) { iByte = Math.trunc(iByte / 10) * 16 + iByte % 10 }
         return iByte
     }
+
 
     // ========== group="25 LED Matrix als Binär-Uhr" advanced=true
 
@@ -272,7 +301,7 @@ Code anhand der original Datenblätter neu programmiert von Lutz Elßner im Juli
     export function rtcpcf85063tp_eADDR(pADDR: eADDR): number { return pADDR }
 
     //% group="i2c Adressen" advanced=true
-    //% block="Fehlercode vom letzten WriteBuffer [LCD] (0 ist kein Fehler)" weight=2
+    //% block="Fehlercode vom letzten WriteBuffer (0 ist kein Fehler)" weight=2
     export function i2cError() { return rtcpcf85063tp_i2cWriteBufferError }
     let rtcpcf85063tp_i2cWriteBufferError: number = 0 // Fehlercode vom letzten WriteBuffer (0 ist kein Fehler)
 
