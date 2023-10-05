@@ -25,6 +25,7 @@ Code anhand der original Datenblätter neu programmiert von Lutz Elßner im Juli
     export enum eFormat { DEC, zehner, einer, BCD }
     export enum eRegister { Sekunde = 0, Minute = 1, Stunde = 2, Tag = 3, Wochentag = 4, Monat = 5, Jahr = 6 }
 
+
     // ========== group="i2c Uhr lesen"
 
     //% group="i2c Uhr lesen"
@@ -36,10 +37,8 @@ Code anhand der original Datenblätter neu programmiert von Lutz Elßner im Juli
         let b = Buffer.create(1)
         b.setUint8(0, 4)
         rtcpcf85063tp_i2cWriteBufferError = pins.i2cWriteBuffer(pADDR, b, true)
+        if (i2cNoError(pADDR)) {
 
-        if (rtcpcf85063tp_i2cWriteBufferError != 0) {
-            basic.showNumber(pADDR) // wenn Modul nicht angesteckt: i2c Adresse anzeigen und Abbruch
-        } else {
             b = pins.i2cReadBuffer(pADDR, 7)
             for (let i = 0; i <= b.length - 1; i++) {
                 rtcpcf85063tp_Changes.set(i, (rtcpcf85063tp_Buffer.getUint8(i) != b.getUint8(i)))
@@ -189,6 +188,8 @@ Code anhand der original Datenblätter neu programmiert von Lutz Elßner im Juli
         b.setUint8(1, 0)
         b.setUint8(2, 0x26) // minute interrupt, CLK 1 Hz
         rtcpcf85063tp_i2cWriteBufferError = pins.i2cWriteBuffer(pADDR, b)
+
+        i2cNoError(pADDR)
     }
 
     //% group="i2c Control Register" subcategory="Uhr stellen"
@@ -312,7 +313,17 @@ Code anhand der original Datenblätter neu programmiert von Lutz Elßner im Juli
     //% group="i2c Adressen" advanced=true
     //% block="i2c Fehlercode" weight=2
     export function i2cError() { return rtcpcf85063tp_i2cWriteBufferError }
+
     let rtcpcf85063tp_i2cWriteBufferError: number = 0 // Fehlercode vom letzten WriteBuffer (0 ist kein Fehler)
+
+    function i2cNoError(pADDR: number): boolean {
+        if (i2cError() == 0) {
+            return true
+        } else {
+            basic.showNumber(pADDR) // wenn Modul nicht angesteckt: i2c Adresse anzeigen und Abbruch
+            return false
+        }
+    }
 
 } // rtcpcf85063tp.ts
 
