@@ -310,7 +310,7 @@ Code anhand der original Datenblätter neu programmiert von Lutz Elßner im Juli
     export function rtcpcf85063tp_eADDR(pADDR: eADDR): number { return pADDR }
 
     //% group="i2c Adressen" advanced=true
-    //% block="Fehlercode vom letzten WriteBuffer (0 ist kein Fehler)" weight=2
+    //% block="i2c Fehlercode" weight=2
     export function i2cError() { return rtcpcf85063tp_i2cWriteBufferError }
     let rtcpcf85063tp_i2cWriteBufferError: number = 0 // Fehlercode vom letzten WriteBuffer (0 ist kein Fehler)
 
