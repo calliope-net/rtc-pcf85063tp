@@ -171,7 +171,7 @@ Code anhand der original Datenblätter neu programmiert von Lutz Elßner im Juli
     // ========== group="i2c Control Register" subcategory="Uhr stellen"
 
     //% group="i2c Control Register" subcategory="Uhr stellen"
-    //% block="i2c %pADDR Control Register 1 und 2 initialisieren" weight=8
+    //% block="i2c %pADDR Register 1=0x00; 2=0x26 (CLK:Sekundentakt; INT:Minutentakt)" weight=8
     //% pADDR.shadow="rtcpcf85063tp_eADDR"
     export function initRegister(pADDR: number) {
         // i2c.writeArray(pADDR, false, [0, 0, 0x26]) // 1.Register-Nummer, dann 2 Byte Daten
