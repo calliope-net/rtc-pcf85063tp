@@ -29,12 +29,16 @@ Code anhand der original Datenblätter neu programmiert von Lutz Elßner im Juli
 
 
     //% group="beim Start"
-    //% block="i2c %pADDR i2c-Check %ck"
+    //% block="i2c %pADDR beim Start || CLK=1Hz %clk i2c-Check %ck"
     //% pADDR.shadow="rtcpcf85063tp_eADDR"
+    //% clk.shadow="toggleOnOff" clk.defl=0
     //% ck.shadow="toggleOnOff" ck.defl=1
-    export function beimStart(pADDR: number, ck: boolean) {
+    export function beimStart(pADDR: number, clk?: boolean, ck?: boolean) {
         n_i2cCheck = (ck ? true : false) // optionaler boolean Parameter kann undefined sein
         n_i2cError = 0 // Reset Fehlercode
+
+        if (clk)
+            writeRegister(pADDR, eControl.Control_2, 0x06) // CLKOUT=1Hz
     }
 
     // ========== group="i2c Uhr lesen"
@@ -197,8 +201,6 @@ Code anhand der original Datenblätter neu programmiert von Lutz Elßner im Juli
         b.setUint8(1, 0)
         b.setUint8(2, 0x26) // minute interrupt, CLK 1 Hz
         i2cWriteBuffer(pADDR, b)
-
-        //i2cNoError(pADDR)
     }
 
     //% group="i2c Control Register" subcategory="Uhr stellen"
@@ -322,7 +324,6 @@ Code anhand der original Datenblätter neu programmiert von Lutz Elßner im Juli
     //% group="i2c Adressen" advanced=true
     //% block="i2c Fehlercode" weight=2
     export function i2cError() { return n_i2cError }
-
 
     function i2cWriteBuffer(pADDR: number, buf: Buffer, repeat: boolean = false) {
         if (n_i2cError == 0) { // vorher kein Fehler
