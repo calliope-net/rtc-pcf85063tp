@@ -33,7 +33,7 @@ Code anhand der original Datenblätter neu programmiert von Lutz Elßner im Juli
     //% pADDR.shadow="rtcpcf85063tp_eADDR"
     //% ck.shadow="toggleOnOff" ck.defl=1
     export function beimStart(pADDR: number, ck?: boolean) {
-        if (ck) n_i2cCheck = true; else n_i2cCheck = false // optionaler boolean Parameter kann undefined sein
+        n_i2cCheck = (ck ? true : false) // optionaler boolean Parameter kann undefined sein
         n_i2cError = 0 // Reset Fehlercode
     }
 
@@ -324,32 +324,21 @@ Code anhand der original Datenblätter neu programmiert von Lutz Elßner im Juli
     export function i2cError() { return n_i2cError }
 
 
-    function i2cWriteBuffer(pADDR: number, buf: Buffer, repeat?: boolean) {
+    function i2cWriteBuffer(pADDR: number, buf: Buffer, repeat: boolean = false) {
         if (n_i2cError == 0) { // vorher kein Fehler
             n_i2cError = pins.i2cWriteBuffer(pADDR, buf, repeat)
             if (n_i2cCheck && n_i2cError != 0)  // vorher kein Fehler, wenn (n_i2cCheck=true): beim 1. Fehler anzeigen
                 basic.showString(Buffer.fromArray([pADDR]).toHex()) // zeige fehlerhafte i2c-Adresse als HEX
-        } else if (!n_i2cCheck)  // vorher Fehler, aber ignorieren, i2c weiter versuchen (n_i2cCheck=false)
+        } else if (!n_i2cCheck)  // vorher Fehler, aber ignorieren (n_i2cCheck=false): i2c weiter versuchen
             n_i2cError = pins.i2cWriteBuffer(pADDR, buf, repeat)
+        //else { } // n_i2cCheck=true und n_i2cError != 0: weitere i2c Aufrufe blockieren
     }
 
-    function i2cReadBuffer(pADDR: number, size: number, repeat?: boolean): Buffer {
+    function i2cReadBuffer(pADDR: number, size: number, repeat: boolean = false): Buffer {
         if (!n_i2cCheck || n_i2cError == 0)
             return pins.i2cReadBuffer(pADDR, size, repeat)
         else
             return Buffer.create(size)
     }
 
-    //let n_i2cError: number = 0 // Fehlercode vom letzten WriteBuffer (0 ist kein Fehler)
-    /* 
-        function i2cNoError(pADDR: number): boolean {
-            if (i2cError() == 0) {
-                return true
-            } else {
-                basic.showNumber(pADDR) // wenn Modul nicht angesteckt: i2c Adresse anzeigen und Abbruch
-                return false
-            }
-        }
-     */
 } // rtcpcf85063tp.ts
-
