@@ -28,11 +28,11 @@ Code anhand der original Datenblätter neu programmiert von Lutz Elßner im Juli
     export enum eRegister { Sekunde = 0, Minute = 1, Stunde = 2, Tag = 3, Wochentag = 4, Monat = 5, Jahr = 6 }
 
 
-    //% group="beim Start (nur i2c-Check)"
-    //% block="i2c %pADDR beim Start || i2c-Check %ck"
+    //% group="beim Start"
+    //% block="i2c %pADDR i2c-Check %ck"
     //% pADDR.shadow="rtcpcf85063tp_eADDR"
     //% ck.shadow="toggleOnOff" ck.defl=1
-    export function beimStart(pADDR: number, ck?: boolean) {
+    export function beimStart(pADDR: number, ck: boolean) {
         n_i2cCheck = (ck ? true : false) // optionaler boolean Parameter kann undefined sein
         n_i2cError = 0 // Reset Fehlercode
     }
