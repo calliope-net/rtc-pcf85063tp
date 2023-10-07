@@ -1,7 +1,7 @@
 
 //% color=#007FBF icon="\uf017" block="RTC Uhr" weight=22
 namespace rtcpcf85063tp
-/* 230806 231004 https://github.com/calliope-net/rtc-pcf85063tp
+/* 230806 231007 https://github.com/calliope-net/rtc-pcf85063tp
 Calliope i2c Erweiterung für Grove - High Precision RTC (Real Time Clock)
 optimiert und getestet für die gleichzeitige Nutzung mehrerer i2c Module am Calliope
 [Projekt-URL] https://github.com/calliope-net/rtc-pcf85063tp
@@ -16,15 +16,26 @@ CMOS Real-Time Clock (RTC) - Quarz-Uhr mit Knopfzelle CR1225 3Volt
 Code anhand der original Datenblätter neu programmiert von Lutz Elßner im Juli 2023
 */ {
     export enum eADDR { RTC_x51 = 0x51 }
+    let n_i2cCheck: boolean = false // i2c-Check
+    let n_i2cError: number = 0 // Fehlercode vom letzten WriteBuffer (0 ist kein Fehler)
 
-    let rtcpcf85063tp_Buffer: Buffer = Buffer.create(7)
-    let rtcpcf85063tp_Changes: boolean[] = [true, true, true, true, true, true, true]
+    let n_Buffer: Buffer = Buffer.create(7)
+    let n_Changes: boolean[] = [true, true, true, true, true, true, true]
     //let arrayWeekday = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa']
 
     export enum eControl { Control_1 = 0, Control_2 = 1, Offset = 2, RAM_byte = 3 }
     export enum eFormat { DEC, zehner, einer, BCD }
     export enum eRegister { Sekunde = 0, Minute = 1, Stunde = 2, Tag = 3, Wochentag = 4, Monat = 5, Jahr = 6 }
 
+
+    //% group="beim Start (nur i2c-Check)"
+    //% block="i2c %pADDR beim Start || i2c-Check %ck"
+    //% pADDR.shadow="rtcpcf85063tp_eADDR"
+    //% ck.shadow="toggleOnOff" ck.defl=1
+    export function beimStart(pADDR: number, ck?: boolean) {
+        if (ck) n_i2cCheck = true; else n_i2cCheck = false // optionaler boolean Parameter kann undefined sein
+        n_i2cError = 0 // Reset Fehlercode
+    }
 
     // ========== group="i2c Uhr lesen"
 
@@ -36,21 +47,19 @@ Code anhand der original Datenblätter neu programmiert von Lutz Elßner im Juli
 
         let b = Buffer.create(1)
         b.setUint8(0, 4)
-        rtcpcf85063tp_i2cWriteBufferError = pins.i2cWriteBuffer(pADDR, b, true)
-        if (i2cNoError(pADDR)) {
+        i2cWriteBuffer(pADDR, b, true)
 
-            b = pins.i2cReadBuffer(pADDR, 7)
-            for (let i = 0; i <= b.length - 1; i++) {
-                rtcpcf85063tp_Changes.set(i, (rtcpcf85063tp_Buffer.getUint8(i) != b.getUint8(i)))
-            }
-            rtcpcf85063tp_Buffer = b
+        i2cReadBuffer(pADDR, 7)
+        for (let i = 0; i <= b.length - 1; i++) {
+            n_Changes.set(i, (n_Buffer.getUint8(i) != b.getUint8(i)))
         }
+        n_Buffer = b
     }
     /* 
         function write1Byte(pADDR: number, byte0: number, repeat: boolean) {
             let b = Buffer.create(1)
             b.setUint8(0, byte0)
-            rtcpcf85063tp_i2cWriteBufferError = pins.i2cWriteBuffer(pADDR, b, repeat)
+            i2cWriteBuffer(pADDR, b, repeat)
         }
     */
 
@@ -61,7 +70,7 @@ Code anhand der original Datenblätter neu programmiert von Lutz Elßner im Juli
     //% pRegister.min=0 pRegister.max=6
     //% pRegister.shadow="rtcpcf85063tp_eRegister"
     export function getByte(pRegister: number, pFormat: eFormat) {
-        let r = rtcpcf85063tp_Buffer.getUint8(pRegister)
+        let r = n_Buffer.getUint8(pRegister)
         if (pRegister == eRegister.Sekunde && getOscillatorStop) { r = r & 0x7F }
         //if (pFormat == eFormat.DEC) { return BCDtoDEC(r) }
         if (pFormat == eFormat.DEC) { return convertByte(r, eFormat.DEC) }
@@ -76,7 +85,7 @@ Code anhand der original Datenblätter neu programmiert von Lutz Elßner im Juli
     //% group="Zahl (Byte)"
     //% block="gesamtes Array (7 Byte) [s,m,H,d,w,M,y] im Format BCD" weight=4
     export function getDateTimeArray() {
-        return rtcpcf85063tp_Buffer.toArray(NumberFormat.UInt8LE)
+        return n_Buffer.toArray(NumberFormat.UInt8LE)
     }
 
 
@@ -140,7 +149,7 @@ Code anhand der original Datenblätter neu programmiert von Lutz Elßner im Juli
         for (let index = 0; index <= values.length; index++) {
             b.setUint8(index + 1, convertByte(values.get(index), eFormat.BCD))
         }
-        rtcpcf85063tp_i2cWriteBufferError = pins.i2cWriteBuffer(pADDR, b)
+        i2cWriteBuffer(pADDR, b)
     }
 
     //% group="i2c Uhr stellen" subcategory="Uhr stellen"
@@ -164,7 +173,7 @@ Code anhand der original Datenblätter neu programmiert von Lutz Elßner im Juli
                 let b = Buffer.create(2)
                 b.setUint8(0, pZeitRegister + 4)
                 b.setUint8(1, convertByte(r, eFormat.BCD))
-                rtcpcf85063tp_i2cWriteBufferError = pins.i2cWriteBuffer(pADDR, b)
+                i2cWriteBuffer(pADDR, b)
             }
         }
     }
@@ -187,9 +196,9 @@ Code anhand der original Datenblätter neu programmiert von Lutz Elßner im Juli
         b.setUint8(0, eControl.Control_1) // 1.Register-Nummer 0, dann 2 Byte Daten
         b.setUint8(1, 0)
         b.setUint8(2, 0x26) // minute interrupt, CLK 1 Hz
-        rtcpcf85063tp_i2cWriteBufferError = pins.i2cWriteBuffer(pADDR, b)
+        i2cWriteBuffer(pADDR, b)
 
-        i2cNoError(pADDR)
+        //i2cNoError(pADDR)
     }
 
     //% group="i2c Control Register" subcategory="Uhr stellen"
@@ -200,7 +209,7 @@ Code anhand der original Datenblätter neu programmiert von Lutz Elßner im Juli
         let b = Buffer.create(2)
         b.setUint8(0, pControlRegister)
         b.setUint8(1, byte)
-        rtcpcf85063tp_i2cWriteBufferError = pins.i2cWriteBuffer(pADDR, b)
+        i2cWriteBuffer(pADDR, b)
         //i2c.write2Byte(pADDR, pRegister, value)
     }
 
@@ -210,8 +219,8 @@ Code anhand der original Datenblätter neu programmiert von Lutz Elßner im Juli
     export function readRegister(pADDR: number, pControlRegister: eControl) {
         let b = Buffer.create(1)
         b.setUint8(0, pControlRegister)
-        rtcpcf85063tp_i2cWriteBufferError = pins.i2cWriteBuffer(pADDR, b, true)
-        return pins.i2cReadBuffer(pADDR, 1).getUint8(0)
+        i2cWriteBuffer(pADDR, b, true)
+        return i2cReadBuffer(pADDR, 1).getUint8(0)
     }
 
 
@@ -225,14 +234,14 @@ Code anhand der original Datenblätter neu programmiert von Lutz Elßner im Juli
     //% group="Boolean" advanced=true
     //% block="OscillatorStop / Batterie wechseln" weight=8
     export function getOscillatorStop(): boolean {
-        return (rtcpcf85063tp_Buffer.getUint8(eRegister.Sekunde) & 0x80) != 0
+        return (n_Buffer.getUint8(eRegister.Sekunde) & 0x80) != 0
     }
 
     //% group="Boolean" advanced=true
     //% block="%pRegister wurde im Array aktualisiert" weight=6
     //% pRegister.shadow="rtcpcf85063tp_eRegister"
     export function isChanged(pRegister: number) {
-        return rtcpcf85063tp_Changes.get(pRegister)
+        return n_Changes.get(pRegister)
     }
 
     //% group="Boolean" advanced=true
@@ -312,18 +321,35 @@ Code anhand der original Datenblätter neu programmiert von Lutz Elßner im Juli
 
     //% group="i2c Adressen" advanced=true
     //% block="i2c Fehlercode" weight=2
-    export function i2cError() { return rtcpcf85063tp_i2cWriteBufferError }
+    export function i2cError() { return n_i2cError }
 
-    let rtcpcf85063tp_i2cWriteBufferError: number = 0 // Fehlercode vom letzten WriteBuffer (0 ist kein Fehler)
 
-    function i2cNoError(pADDR: number): boolean {
-        if (i2cError() == 0) {
-            return true
-        } else {
-            basic.showNumber(pADDR) // wenn Modul nicht angesteckt: i2c Adresse anzeigen und Abbruch
-            return false
-        }
+    function i2cWriteBuffer(pADDR: number, buf: Buffer, repeat?: boolean) {
+        if (n_i2cError == 0) { // vorher kein Fehler
+            n_i2cError = pins.i2cWriteBuffer(pADDR, buf, repeat)
+            if (n_i2cCheck && n_i2cError != 0)  // vorher kein Fehler, wenn (n_i2cCheck=true): beim 1. Fehler anzeigen
+                basic.showString(Buffer.fromArray([pADDR]).toHex()) // zeige fehlerhafte i2c-Adresse als HEX
+        } else if (!n_i2cCheck)  // vorher Fehler, aber ignorieren, i2c weiter versuchen (n_i2cCheck=false)
+            n_i2cError = pins.i2cWriteBuffer(pADDR, buf, repeat)
     }
 
+    function i2cReadBuffer(pADDR: number, size: number, repeat?: boolean): Buffer {
+        if (!n_i2cCheck || n_i2cError == 0)
+            return pins.i2cReadBuffer(pADDR, size, repeat)
+        else
+            return Buffer.create(size)
+    }
+
+    //let n_i2cError: number = 0 // Fehlercode vom letzten WriteBuffer (0 ist kein Fehler)
+    /* 
+        function i2cNoError(pADDR: number): boolean {
+            if (i2cError() == 0) {
+                return true
+            } else {
+                basic.showNumber(pADDR) // wenn Modul nicht angesteckt: i2c Adresse anzeigen und Abbruch
+                return false
+            }
+        }
+     */
 } // rtcpcf85063tp.ts
 
