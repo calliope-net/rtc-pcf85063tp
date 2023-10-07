@@ -53,7 +53,7 @@ Code anhand der original Datenblätter neu programmiert von Lutz Elßner im Juli
         b.setUint8(0, 4)
         i2cWriteBuffer(pADDR, b, true)
 
-        i2cReadBuffer(pADDR, 7)
+        b = i2cReadBuffer(pADDR, 7)
         for (let i = 0; i <= b.length - 1; i++) {
             n_Changes.set(i, (n_Buffer.getUint8(i) != b.getUint8(i)))
         }
